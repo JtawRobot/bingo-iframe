@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import useCountDown from '../../hooks/usecountdown';
 
+export const mobile = '(min-width: 1px) and (max-width: 576px)';
+
 const BingoBox = styled.div`
     position: relative;
     width: 15rem;
@@ -18,6 +20,12 @@ const BingoBox = styled.div`
     outline: none;
     padding: 0;
     image-rendering: -webkit-optimize-contrast;
+
+    @media ${mobile} {
+      width: 41vw;
+      height: 70.1vw;
+      margin: 0 1.8vw 0 1.8vw;
+    }
 `;
 
 const BingoJackpot = styled.div`
@@ -30,6 +38,13 @@ const BingoJackpot = styled.div`
     flex-direction: row;
     justify-content: center;
 
+    @media ${mobile} {
+      width: 36.3vw;
+      margin-top: 27.3vw;
+      margin-bottom: 0;
+      font-size: 3.1vw;
+    }
+
 `;
 
 const BingoInfoDiv = styled.div`
@@ -37,6 +52,13 @@ const BingoInfoDiv = styled.div`
     width: 13.5rem;
     height: 5rem;
     padding: 0vh 4.5px 0vh 4.5px;
+
+    @media ${mobile} {
+      width: 39vw;
+      height: 50vw;
+      padding: 0vh 1vw 0vh 1vw;
+    }
+
 
 `;
 
@@ -51,6 +73,10 @@ const BingoInfo = styled.div`
     margin: 0vh 0vh 0vh 0vh;
     line-height: normal;
     white-space: nowrap;
+
+    @media ${mobile} {
+      font-size: 3vw;
+    }
 
 `;
 
@@ -77,6 +103,14 @@ const PlayNowButton = styled.button`
       transform: scale(1.1);
     }
 
+    @media ${mobile} {
+      width: 36.3vw;
+      height: 8vw;
+      border-radius: 4vw;
+      font-size: 3.8vw;
+      margin-top: 0.78vw;
+    }
+
 `;
 
 const PlayButtonImg = styled.img`
@@ -84,7 +118,11 @@ const PlayButtonImg = styled.img`
     width: 1.7rem;
     margin-right: 1.3vh;
 
-
+    @media ${mobile} {
+      height: 4.7vw;
+      width: 4.1vw;
+      margin-right: 2vw;
+    }
 `;
 
 const ButtonsDiv = styled.div`
