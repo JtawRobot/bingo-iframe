@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import styled from 'styled-components';
 import useSWR from 'swr';
@@ -11,7 +12,7 @@ const ScheduleDiv = styled.div`
     padding: 63px 0 63px 0;
     display: grid;
     grid-template-columns: ${(props) => (props.itemsLength < 4 ? `repeat(${props.itemsLength}, 0.01fr)` : 'repeat(4, 0.01fr)')} ;
-    grid-column-gap: 3vw;
+    grid-column-gap: 2vw;
     background: #03002e;
     grid-row-gap: 25px;
     justify-content: center;
@@ -40,15 +41,63 @@ const bingoMenu = {
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export default function Home() {
-  const { data } = useSWR('/api/getrealtimebingorooms', fetcher);
+const BingoIframe = (props) =>  {
+  const {jsessionId, userId} = props;
 
-  const bingoRooms = data ? data.bingoRooms : [];
+  const [isOpen, setOpen] = useState(false);
+  const [sessionId, setSessionId] = useState(jsessionId)
 
+
+  const { data : bingoData } = useSWR('/api/getrealtimebingorooms', fetcher);
+  const { data : sessionData } = useSWR(`/api/auth/checksession?sessionId=${jsessionId}&userId=${userId}`);
+
+
+  useEffect(() => {
+    if (sessionData) {
+      if (!sessionData.isValid) {
+        setSessionId(undefined)
+        return;
+      }
+
+      if (sessionData.isValid === 'no account') {
+        setSessionId(undefined)
+        return;
+      }
+    }
+  }, [sessionData]);
+
+  const bingoRooms = bingoData ? bingoData.bingoRooms : [];
   const newBingoRooms = bingoRooms.map((bingoRoom) => ({
     ...bingoRoom,
     imageSrc: bingoMenu[bingoRoom.roomId],
   }));
+
+  const BingoMarketingModal = dynamic(
+    () => import(`@parlaygames/bingomarketingmodal`), {
+      ssr: false,
+    }
+  );
+
+
+
+  const getAccountStatus = () => Promise.resolve({
+    cash: '$100',
+    bonus: '$500',
+    balance: '$600',
+  });
+
+  const config = {
+    getAccountStatus,
+    contentfulSpace: `${process.env.CONTENTFUL_SPACEID}`,
+    contentfulEnvironment: `${process.env.CONTENTFUL_ENVIRONTMENTID}`,
+    contentfulAccessToken: `${process.env.CONTENTFUL_ACCESSTOKEN}`,
+    jSessionToken: sessionId,
+  };
+
+  const setModalOpen = () => {
+    setOpen(true);
+  };
+
 
   return (
     <>
@@ -61,11 +110,20 @@ export default function Home() {
           <BingoThumbnail
             key={bingoData.roomId}
             bingoData={bingoData}
+            setModalOpen={setModalOpen}
             // itemref={bingoSection}
             // isMobile={isMobile}
           />
         )) }
       </ScheduleDiv>
+      <BingoMarketingModal
+        {...config}
+        isOpen={isOpen}
+        onClose={() => setOpen(false)}
+        jsessionId={sessionId}
+      />
     </>
   );
 }
+
+export default BingoIframe

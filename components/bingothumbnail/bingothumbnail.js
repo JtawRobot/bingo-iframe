@@ -83,7 +83,7 @@ const BingoInfo = styled.div`
 const PlayNowButton = styled.button`
     width: 13.3rem;
     height: 3rem;
-    background: ${(props) => (props.prebuy ? '#f96f19' : '#203dff')};
+    background: #203dff;
     border:none;
     outline: none;
     color: white;
@@ -94,7 +94,7 @@ const PlayNowButton = styled.button`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-top: 9px;
+    margin-top: 0px;
     transition: all .2s ease-in-out;
 
 
@@ -113,6 +113,11 @@ const PlayNowButton = styled.button`
 
 `;
 
+const PrePurchaseButton = styled(PlayNowButton)`
+  background: #f96f19;
+  margin-top: 8px;
+`;
+
 const PlayButtonImg = styled.img`
     height: 1.5rem;
     width: 1.7rem;
@@ -126,20 +131,30 @@ const PlayButtonImg = styled.img`
 `;
 
 const ButtonsDiv = styled.div`
+    color: white;
+    font-size: 18px;
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
+    @media ${mobile} {
+      font-size: 12px;
+    }
 `;
 
-const calendaricon = '/assets/icons/calendar.png';
-
 const BingoThumbnail = (props) => {
-  const { bingoData, isMobile, itemref } = props;
+  const {
+    bingoData, jsessionId, itemref, setModalOpen,
+  } = props;
 
   const time = useCountDown(bingoData.nextGameStarting, '/api/getrealtimebingorooms', itemref);
+
+  const openPrepurchase = () => {
+    setModalOpen();
+  };
 
   const onBingoLaunch = () => {
     // if (!session) {
@@ -150,7 +165,9 @@ const BingoThumbnail = (props) => {
     // }
 
     const {
-      language, launcherName, roomId, gameId,
+      language,
+      launcherName,
+      roomId, gameId,
     } = bingoData.launch.HTML5_FULL;
 
     // const {
@@ -188,18 +205,20 @@ const BingoThumbnail = (props) => {
         </BingoInfo>
       </BingoInfoDiv>
       <ButtonsDiv>
-        <PlayNowButton onClick={onBingoLaunch}>
-          <PlayButtonImg src="/assets/icons/playicon.png" alt="playicon" />
-          Play now!
-        </PlayNowButton>
-        {/* {
-                bingoData.roomId === 24 ? (
-                  <PlayNowButton onClick={onBingoLaunch(bingoData)} prebuy>
-                    <PlayButtonImg src={calendaricon} alt="playicon" />
-                    Pre-Buy
-                  </PlayNowButton>
-                ) : null
-              } */}
+        {
+          jsessionId ? (
+            <>
+              <PlayNowButton onClick={onBingoLaunch}>
+                <PlayButtonImg src="/assets/icons/playicon.png" alt="playicon" />
+                Play now!
+              </PlayNowButton>
+              <PrePurchaseButton onClick={openPrepurchase}>
+                <PlayButtonImg src="/assets/icons/calendar.png" alt="playicon" />
+                Pre-Buy
+              </PrePurchaseButton>
+            </>
+          ) : 'Log In To Play'
+        }
       </ButtonsDiv>
     </BingoBox>
   );
