@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import styled from 'styled-components';
@@ -41,12 +42,13 @@ const bingoMenu = {
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-const BingoIframe = (props) =>  {
-  const {jsessionId, userId} = props;
+const BingoIframe = () =>  {
+  const router = useRouter();
+  const {jsessionId, userId  } = router.query;
+
 
   const [isOpen, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState(jsessionId)
-
 
   const { data : bingoData } = useSWR('/api/getrealtimebingorooms', fetcher);
   const { data : sessionData } = useSWR(`/api/auth/checksession?sessionId=${jsessionId}&userId=${userId}`);
@@ -65,6 +67,10 @@ const BingoIframe = (props) =>  {
       }
     }
   }, [sessionData]);
+
+  useEffect(() => {
+    setSessionId(jsessionId)
+  }, [jsessionId])
 
   const bingoRooms = bingoData ? bingoData.bingoRooms : [];
   const newBingoRooms = bingoRooms.map((bingoRoom) => ({
